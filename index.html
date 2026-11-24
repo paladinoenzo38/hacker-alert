@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NovaCorp Security</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+/* VOICE: tense, playful office thriller, a hacker is inside NovaCorp
+   IDEA: the company's own devices — inbox, phone, browser, desk — each QR opens one
+   PICTURE: each mini-game IS a realistic screen of the company
+   COLOUR and TYPE: NovaCorp navy #0b1f3a, white, alert red #ff3b4e; Manrope
+   LAYOUT: phone-first single column, top bar with intrusion gauge, game, debrief */
+:root{color-scheme:light dark;--bg:light-dark(#eef2f7,#07111f);--card:light-dark(#fff,#0f2038);--ink:light-dark(#0b1f3a,#e8eef7);--mute:light-dark(#5b6b80,#93a3b8);--line:light-dark(#d6dee9,#22385a);--navy:#0b1f3a;--red:#ff3b4e;--green:#18a957;--amber:#f2a516;--blue:#2f6fed}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.5 Manrope,system-ui,sans-serif;overflow-x:clip}
+button{font:inherit;cursor:pointer;border:0;border-radius:12px;min-height:44px;padding:10px 16px}
+button:focus-visible,input:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+.top{background:var(--navy);color:#fff;padding:10px max(4vw,14px);display:flex;align-items:center;gap:12px;position:sticky;top:0;z-index:5}
+.logo{font-weight:800;letter-spacing:-.02em}.logo b{color:var(--red)}
+.gauge{margin-left:auto;display:flex;align-items:center;gap:8px;font-size:13px}
+.bar{width:110px;height:10px;background:#ffffff22;border-radius:9px;overflow:hidden}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--red));transition:width .6s}
+main{max-width:560px;margin:0 auto;padding:18px 14px 40px}
+h1{font-size:30px;line-height:1.1;margin:6px 0 4px;text-wrap:balance}h2{font-size:21px;margin:0 0 6px}
+.sub{color:var(--mute);margin:0 0 16px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:18px;padding:16px;margin-bottom:14px}
+.btn{background:var(--navy);color:#fff;width:100%}.btn.red{background:var(--red)}.btn.green{background:var(--green)}.btn.ghost{background:transparent;color:var(--ink);border:1px solid var(--line)}
+.row{display:flex;gap:10px;flex-wrap:wrap}.row>*{flex:1 1 140px}
+.menu a{display:flex;justify-content:space-between;align-items:center;padding:14px;border-radius:14px;background:var(--card);border:1px solid var(--line);margin-bottom:10px;color:inherit;text-decoration:none;font-weight:600}
+.menu small{color:var(--mute);font-weight:400}
+.mail-h{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:12px}
+.av{width:44px;height:44px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800}
+.from{font-weight:700}.addr{font-size:13px;color:var(--mute);overflow-wrap:anywhere}
+.clue{border-radius:5px;transition:background .2s;cursor:pointer}.clue.on{background:#ff3b4e33;outline:2px solid var(--red)}
+.lnk{color:var(--blue);text-decoration:underline;font-weight:600;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.tip{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:#111c;color:#fff;padding:10px 14px;border-radius:12px;font-size:14px;max-width:92vw;z-index:9;overflow-wrap:anywhere}
+.sms{background:light-dark(#e9e9eb,#26313f);border-radius:18px 18px 18px 4px;padding:12px 14px;max-width:88%}
+.hint{font-size:13px;color:var(--mute);margin:8px 0}
+.call{background:linear-gradient(#0b1f3a,#1d3d6b);color:#fff;border-radius:28px;padding:40px 20px;text-align:center;min-height:440px;display:flex;flex-direction:column;justify-content:space-between}
+.ring{width:96px;height:96px;border-radius:50%;margin:0 auto 14px;background:#ffffff22;display:grid;place-items:center;font-size:38px;font-weight:800;animation:pulse 1.2s infinite}
+@keyframes pulse{50%{box-shadow:0 0 0 18px #ffffff10}}
+@media (prefers-reduced-motion:reduce){.ring{animation:none}}
+.round{width:68px;height:68px;border-radius:50%;padding:0;font-weight:800;color:#fff}
+.urlbar{display:flex;align-items:center;gap:8px;background:light-dark(#f1f3f6,#18283f);border-radius:12px;padding:12px;font-size:15px;width:100%;text-align:left;color:var(--ink);border:2px solid transparent;margin-bottom:10px;overflow-wrap:anywhere}
+.urlbar:hover{border-color:var(--blue)}
+.timer{font-weight:800;font-size:28px;text-align:center;font-variant-numeric:tabular-nums}
+.fig{position:relative;border-radius:16px;overflow:hidden;background:#dfe6ef}
+.fig svg{display:block;width:100%;height:auto}
+.spot{cursor:pointer}.spot.hit>.ring2{stroke:var(--red);stroke-width:5;fill:#ff3b4e33}
+.ransom{background:#7a0010;color:#fff;border-radius:18px;padding:22px;text-align:center}
+.ransom h2{font-size:26px;letter-spacing:.02em}
+.step{display:flex;align-items:center;gap:10px;width:100%;text-align:left;background:var(--card);color:var(--ink);border:1px solid var(--line);margin-bottom:8px}
+.step .n{width:30px;height:30px;border-radius:50%;background:var(--line);display:grid;place-items:center;font-weight:800;flex:none}
+.step.on .n{background:var(--navy);color:#fff}
+.pw{width:100%;font:inherit;font-size:18px;padding:12px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.meter{height:14px;border-radius:9px;background:var(--line);overflow:hidden;margin:10px 0}.meter i{display:block;height:100%;transition:width .3s}
+.verdict{border-radius:18px;padding:20px;color:#fff;margin-bottom:14px}
+.verdict h1{color:#fff}
+.verdict.ok{background:var(--green)}.verdict.mid{background:var(--amber);color:#1b1300}.verdict.mid h1{color:#1b1300}.verdict.ko{background:var(--red)}
+.verdict p{margin:4px 0 0;font-weight:600}
+ul.cl{padding-left:20px;margin:6px 0}ul.cl li{margin:4px 0}
+.note{font-size:13px;color:var(--mute);text-align:center;margin-top:18px}
+</style>
+</head>
+<body>
+<div class="top"><div class="logo">Nova<b>Corp</b> Security</div><div class="gauge"><span id="gtxt">0/10</span><div class="bar"><i id="gbar" style="width:0"></i></div></div></div>
+<main id="app"></main>
+<div id="tip" class="tip" hidden></div>
+<script>
+{
+const $=s=>document.querySelector(s), app=$('#app');
+const esc=t=>String(t).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const shuffle=a=>a.map(v=>[Math.random(),v]).sort((x,y)=>x[0]-y[0]).map(x=>x[1]);
+let timers=[];const clearT=()=>{timers.forEach(clearInterval);timers=[];try{speechSynthesis.cancel()}catch(e){}};
+
+/* ---------- shared game state (gauge) ---------- */
+const KEY='novacorp-game';
+const load=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{gauge:0,missed:{}}}catch(e){return {gauge:0,missed:{}}}};
+const save=s=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}};
+let state=load();
+const drawGauge=()=>{$('#gtxt').textContent=state.gauge+'/10';$('#gbar').style.width=state.gauge*10+'%'};
+function penalty(result,sev,family){
+  let add=0,notes=[];
+  if(result==='mid')add=1;
+  if(result==='ko'){add=sev;
+    if((state.missed[family]||0)>0){add++;notes.push('Same mistake twice: +1 ("The hacker knows your weakness")')}
+    state.missed[family]=(state.missed[family]||0)+1}
+  if(result!=='ok'&&state.gauge>=5){add++;notes.push('Red alert: +1')}
+  state.gauge=Math.min(10,state.gauge+add);save(state);drawGauge();return {add,notes};
+}
+
+/* ---------- debrief screen ---------- */
+function debrief(result,sev,family,title,expl,extra=''){
+  clearT();const p=penalty(result,sev,family);
+  const head={ok:['Hacker blocked!','The gauge does not move.'],mid:['Almost right','+'+p.add+' on the intrusion gauge.'],ko:['The hacker got you!','+'+p.add+' on the intrusion gauge.']}[result];
+  const over=state.gauge>=10;
+  app.innerHTML=`<div class="verdict ${result}"><h1>${head[0]}</h1><p>${head[1]}</p>${p.notes.map(n=>`<p>${esc(n)}</p>`).join('')}</div>
+  ${over?`<div class="verdict ko"><h1>The hacker is in!</h1><p>Game over. The gauge reached 10.</p></div>`:''}
+  <div class="card"><h2>${esc(title)}</h2>${expl}${extra}</div>
+  <button class="btn" id="back">Back to the cards</button>`;
+  $('#back').onclick=()=>{location.hash='';route()};
+  scrollTo(0,0);
+}
+function toast(t){const e=$('#tip');e.textContent=t;e.hidden=false;clearTimeout(toast.t);toast.t=setTimeout(()=>e.hidden=true,2600)}
+function intro(icon,title,text,go){
+  app.innerHTML=`<div class="card" style="text-align:center;padding:28px 18px"><div class="ring" style="background:var(--red);color:#fff;animation:none;width:72px;height:72px;font-size:28px">${icon}</div>
+  <h1>${title}</h1><p class="sub">${text}</p><button class="btn red" id="go">Open</button></div>
+  <p class="note">Training game. Everything here is fake: never type real information.</p>`;
+  $('#go').onclick=go;
+}
+
+/* ---------- 1. Spot the trap ---------- */
+const TRAPS=[
+ {kind:'mail',scam:true,col:'#1c5d99',ini:'BB',from:'Bluestone Bank',addr:'security@bluestone-bank-secure.co',subj:'[[URGENT]] Your account will be closed',
+  body:'Dear customer,<br><br>We detected [[unusual activity]] on your account. You must confirm your identity [[within 1 hour]] or your account will be closed.<br><br>{{Confirm my account}}<br><br>Bluestone Bank Security Team',
+  url:'http://bluestone-bank-secure.co/login-verify',clues:['Fake address: "bluestone-bank-secure.co" is not the bank','Urgency: "within 1 hour"','Vague "unusual activity", no details','The link goes to a strange website'],
+  expl:'A bank never asks you to confirm your identity with a link in an email. Don\'t click: open your bank\'s app or website yourself, and report the email to IT.'},
+ {kind:'sms',scam:true,from:'+44 7700 900461',body:'ParcelGo: your parcel is [[on hold]]. Pay the [[1.99 € fees]] [[today]] to get it: {{parcelgo-delivery.info/pay}}',
+  url:'https://parcelgo-delivery.info/pay?id=88213',clues:['Unknown mobile number, not a company','Small payment to steal your card details','Pressure: "today"','The link is not the real delivery website'],
+  expl:'Fake delivery texts are one of the most common scams. A delivery company doesn\'t ask for small fees by text. Don\'t click, delete the message, check your orders on the real website.'},
+ {kind:'mail',scam:true,col:'#7b3fa0',ini:'LM',from:'Laura Martin (CEO)',addr:'laura.martin.novacorp@gmail.com',subj:'Quick favour',
+  body:'Hi,<br><br>I\'m in a meeting and [[I can\'t talk]]. I need you to buy [[5 gift cards of 100 €]] for a client. [[Keep it confidential]] and send me the codes [[ASAP]].<br><br>Thanks,<br>Laura<br><small>Sent from my phone</small>',
+  url:'',clues:['A personal Gmail address, not @novacorp.com','"I can\'t talk": so you can\'t check','Gift cards: scammers love them','Secret + urgency'],
+  expl:'This is "CEO fraud": a fake boss asks for money or gift cards. Call your boss back on a number you know before doing anything, and alert IT.'},
+ {kind:'mail',scam:false,col:'#18a957',ini:'HR',from:'NovaCorp HR',addr:'hr@novacorp.com',subj:'Team lunch on Thursday',
+  body:'Hello team,<br><br>Reminder: our team lunch is on Thursday at 12:30 in the cafeteria. The menu is on the intranet: {{intranet.novacorp.com/lunch}}<br><br>See you there!<br>The HR team',
+  url:'https://intranet.novacorp.com/lunch',clues:[],
+  expl:'This one was real: the address is @novacorp.com, the link goes to the company intranet, there is no urgency and nobody asks for data. Reporting real messages blocks the work, so think before you report.'},
+ {kind:'mail',scam:false,col:'#2f6fed',ini:'IT',from:'NovaCorp IT',addr:'it@novacorp.com',subj:'Maintenance on Saturday',
+  body:'Hello,<br><br>The servers will be updated on Saturday from 8 to 10 am. You don\'t need to do anything.<br><br>Reminder: IT will <b>never</b> ask for your password.<br><br>NovaCorp IT',
+  url:'',clues:[],
+  expl:'This one was real: right address, no link, no request, no pressure. It even reminds you that IT never asks for your password.'}
+];
+function gameTrap(){
+  const t=pick(TRAPS),sev=t.scam?2:1;let found=0,clicked=false;
+  const total=(t.body.match(/\[\[/g)||[]).length+(t.subj.match(/\[\[/g)||[]).length;
+  const fmt=s=>s.replace(/\[\[(.+?)\]\]/g,'<span class="clue">$1</span>').replace(/\{\{(.+?)\}\}/g,'<span class="lnk" id="lnk">$1</span>');
+  const head=t.kind==='mail'
+   ?`<div class="mail-h"><div class="av" style="background:${t.col}">${t.ini}</div><div><div class="from">${esc(t.from)}</div><div class="addr"><span class="clue-a">${esc(t.addr)}</span></div></div></div><h2>${fmt(t.subj)}</h2>`
+   :`<div class="mail-h"><div class="av" style="background:#8a96a8">?</div><div><div class="from">${esc(t.from)}</div><div class="addr">Text message · now</div></div></div>`;
+  app.innerHTML=`<p class="sub" style="margin-bottom:8px">${t.kind==='mail'?'NovaMail · Inbox':'Messages'}</p>
+  <div class="card">${head}<div class="${t.kind==='sms'?'sms':''}">${fmt(t.body)}</div></div>
+  <p class="hint">Tap what looks suspicious. Hold a link to see where it really goes.</p>
+  <div class="row"><button class="btn red" id="rep">Report</button><button class="btn green" id="safe">It's safe</button></div>`;
+  const addrEl=app.querySelector('.clue-a');if(t.scam&&t.kind==='mail')addrEl.classList.add('clue');
+  app.querySelectorAll('.clue').forEach(c=>c.onclick=()=>{c.classList.toggle('on');found=app.querySelectorAll('.clue.on').length});
+  const l=$('#lnk');
+  if(l){let hold,held=false;
+    const start=()=>{held=false;hold=setTimeout(()=>{held=true;toast('Real address: '+t.url)},550)};
+    const end=e=>{clearTimeout(hold);if(!held){e.preventDefault();clicked=true;
+      if(t.scam)finish('ko','You clicked the link!');else toast('Opening the intranet... (safe)')}};
+    l.addEventListener('pointerdown',start);l.addEventListener('pointerup',end);l.addEventListener('pointerleave',()=>clearTimeout(hold));l.oncontextmenu=e=>e.preventDefault()}
+  const finish=(r,why)=>{
+    const list=t.clues.length?`<p><b>The red flags:</b></p><ul class="cl">${t.clues.map(c=>`<li>${esc(c)}</li>`).join('')}</ul>`:'';
+    debrief(r,sev,'phishing',why,`<p>${esc(t.expl)}</p>${list}`,t.scam?`<p class="hint">You spotted ${Math.min(found,Math.max(total,1))} suspicious element(s).</p>`:'')};
+  $('#rep').onclick=()=>finish(t.scam?'ok':'ko',t.scam?'Well done, it was a scam.':'It was a real message!');
+  $('#safe').onclick=()=>finish(t.scam?'ko':'ok',t.scam?'It was a scam!':'Right, this message was real.');
+}
+
+/* ---------- 2. Crack my password ---------- */
+const COMMON=['123456','password','azerty','qwerty','novacorp','111111','iloveyou','admin','welcome','soleil','motdepasse','football'];
+function crackTime(p){
+  if(!p)return 0;const low=p.toLowerCase();
+  if(COMMON.some(c=>low.includes(c))&&p.length<12)return 0.001;
+  let cs=0;if(/[a-z]/.test(p))cs+=26;if(/[A-Z]/.test(p))cs+=26;if(/\d/.test(p))cs+=10;if(/[^a-zA-Z0-9]/.test(p))cs+=33;
+  if(/^(.)\1+$/.test(p))cs=1.5;
+  return Math.pow(cs,p.length)/2/1e10;
+}
+function human(s){
+  const u=[['years',31536000],['days',86400],['hours',3600],['minutes',60],['seconds',1]];
+  if(s<1)return 'instantly';
+  for(const [n,v] of u)if(s>=v){const x=s/v;if(n==='years'&&x>1e6)return 'more than a million years';return Math.round(x).toLocaleString('en')+' '+n}
+}
+function gamePassword(){
+  const who=pick(['the accountant','the new intern','the boss','the HR manager']);
+  app.innerHTML=`<p class="sub" style="margin-bottom:8px">NovaCorp account · Change password</p>
+  <div class="card"><h2>Create a new password for ${who}</h2><p class="sub">A hacker's computer tries 10 billion passwords per second. Your password must resist at least <b>100 years</b>.</p>
+  <input class="pw" id="pw" type="text" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Invent a FAKE password">
+  <div class="meter"><i id="m" style="width:0"></i></div><div class="timer" id="ct" style="font-size:20px">—</div>
+  <p class="hint">Never type a real password, even in a game.</p></div>
+  <button class="btn" id="ok">Validate</button>`;
+  const pw=$('#pw'),m=$('#m'),ct=$('#ct');
+  pw.oninput=()=>{const s=crackTime(pw.value),y=s/31536000;const r=Math.max(0,Math.min(1,(Math.log10(y+1e-9)+9)/11));
+    m.style.width=(pw.value?Math.max(6,r*100):0)+'%';m.style.background=y>=100?'var(--green)':y>=1?'var(--amber)':'var(--red)';
+    ct.textContent=pw.value?'Cracked in: '+human(s):'—'};
+  $('#ok').onclick=()=>{const v=pw.value;if(!v){toast('Type a fake password first');return}
+    const y=crackTime(v)/31536000,r=y>=100?'ok':y>=1?'mid':'ko',len=v.length;pw.value='';
+    debrief(r,1,'passwords',r==='ok'?'Strong password!':'Too weak!',
+     `<p>Your password: ${len} characters, cracked in <b>${esc(human(y*31536000))}</b>.</p>
+     <p><b>A strong password:</b></p><ul class="cl"><li>at least 12 characters, or a sentence of 4 random words ("purple-tiger-eats-pizza")</li><li>uppercase, lowercase, numbers and symbols</li><li>no name, birthday or "123456"</li><li>a different one for every account, saved in a password manager</li></ul>`)};
+}
+
+/* ---------- 3. Incoming call ---------- */
+const CALLS=[
+ {name:'NovaCorp IT Support',num:'+44 20 7946 0321',lines:["Hello, this is Kevin from the IT support team.","We are updating your account right now and there is a problem.","You just received a six digit code on your phone. Can you read it to me, please? It's urgent, or your account will be blocked."]},
+ {name:'Unknown number',num:'+33 6 12 34 56 78',lines:["Hi, this is Sarah, from the security department.","A hacker is trying to log into your mailbox.","To protect you, I need the code we just sent you by text message. Quickly, please!"]}
+];
+let ac;
+function ring(){try{ac=ac||new (window.AudioContext||window.webkitAudioContext)();const beep=t=>{const o=ac.createOscillator(),g=ac.createGain();o.frequency.value=480;o.connect(g);g.connect(ac.destination);g.gain.value=.08;o.start(ac.currentTime+t);o.stop(ac.currentTime+t+.4)};beep(0);beep(.5)}catch(e){}}
+function say(lines,done){try{const ss=speechSynthesis;ss.cancel();let i=0;const next=()=>{if(i>=lines.length){done&&done();return}const u=new SpeechSynthesisUtterance(lines[i++]);u.lang='en-GB';u.rate=.95;u.onend=next;u.onerror=next;ss.speak(u)};next()}catch(e){done&&done()}}
+function gameCall(){
+  const c=pick(CALLS);
+  app.innerHTML=`<div class="call"><div><p style="opacity:.7;margin:0 0 20px">Incoming call...</p><div class="ring">?</div><h1 style="color:#fff">${esc(c.name)}</h1><p style="opacity:.75">${esc(c.num)}</p></div>
+  <div class="row" style="justify-content:space-around"><button class="round" style="background:var(--red);flex:0 0 68px" id="dec" aria-label="Decline">✕</button><button class="round" style="background:var(--green);flex:0 0 68px" id="acc" aria-label="Accept">✓</button></div></div>`;
+  ring();const r=setInterval(ring,2000);timers.push(r);
+  $('#dec').onclick=()=>toast('In real life you could ignore it. Here, answer to train!');
+  $('#acc').onclick=()=>{clearInterval(r);
+    app.innerHTML=`<div class="call" style="min-height:0;gap:16px"><div><p style="opacity:.7;margin:0">${esc(c.name)} · <span id="dur">00:00</span></p></div>
+    <div id="sub" style="text-align:left;background:#ffffff14;border-radius:14px;padding:14px;min-height:120px"></div>
+    <div id="ch" hidden><p style="margin:0 0 10px;font-weight:700">What do you do?</p>
+    <button class="btn red" id="a1" style="margin-bottom:8px">Give the code</button>
+    <button class="btn green" id="a2" style="margin-bottom:8px">Hang up and call IT back</button>
+    <button class="btn ghost" id="a3" style="color:#fff;border-color:#ffffff55">Ask for their name</button></div></div>
+    <p class="hint">Turn the sound on. Subtitles are shown.</p>`;
+    let s=0;timers.push(setInterval(()=>{s++;$('#dur')&&($('#dur').textContent='00:'+String(s).padStart(2,'0'))},1000));
+    const sub=$('#sub');let i=0;const show=()=>{if(i<c.lines.length){sub.innerHTML+=`<p style="margin:0 0 6px">“${esc(c.lines[i++])}”</p>`}};
+    show();timers.push(setInterval(show,2600));
+    say(c.lines,()=>{});setTimeout(()=>{sub.innerHTML=c.lines.map(l=>`<p style="margin:0 0 6px">“${esc(l)}”</p>`).join('');$('#ch').hidden=false},c.lines.length*2600);
+    const expl=`<p>A real IT team <b>never</b> asks for your code or password. The code you receive by text is your second lock (two-factor authentication): if you give it, the hacker gets into your account.</p>
+    <p><b>The red flags:</b></p><ul class="cl"><li>Someone calls you first</li><li>Urgency and fear ("your account will be blocked")</li><li>They ask for a code or a password</li></ul>
+    <p><b>The right reflex:</b> hang up, call IT back on the number you know, and alert them.</p>`;
+    $('#a1').onclick=()=>debrief('ko',4,'humans','You gave the code!',expl);
+    $('#a2').onclick=()=>debrief('ok',4,'humans','Perfect reflex.',expl);
+    $('#a3').onclick=()=>debrief('mid',4,'humans','Not enough.',`<p>Asking for a name is a good start, but a scammer can give any name. You must check by calling IT back yourself.</p>`+expl);
+  };
+}
+
+/* ---------- 4. Find the real link ---------- */
+const LINKS=[
+ {task:'Open the NovaCorp HR portal to download your payslip.',real:'https://hr.novacorp.com/payslip',fakes:['https://hr.novac0rp.com/payslip','https://novacorp.com.hr-portal.net/payslip','http://hr-novacorp.com/payslip']},
+ {task:'Log in to Bluestone Bank to pay a supplier.',real:'https://www.bluestonebank.com/login',fakes:['https://www.bluest0nebank.com/login','https://bluestonebank.com.secure-login.info','http://www.bluestone-bank.com/login']},
+ {task:'Open the NovaCorp cloud to share a file with a client.',real:'https://cloud.novacorp.com/share',fakes:['https://cloud.novacorp.co/share','https://cloud-novacorp.com/share','https://cloud.novaccorp.com/share']}
+];
+function gameLink(){
+  const l=pick(LINKS),opts=shuffle([l.real,...l.fakes]);let left=15;
+  app.innerHTML=`<p class="sub" style="margin-bottom:8px">Browser</p><div class="card"><h2>${esc(l.task)}</h2><p class="sub">Only one address is real. Tap it before the time runs out!</p>
+  <div class="timer" id="t">15</div></div>
+  ${opts.map((o,i)=>`<button class="urlbar" data-i="${i}"><span>${o.startsWith('https')?'🔒':'⚠️'}</span><span>${esc(o)}</span></button>`).join('')}`;
+  const expl=`<p>The real address was <b>${esc(l.real)}</b>.</p><p><b>The tricks:</b></p><ul class="cl"><li>a letter replaced by a number (0 instead of o)</li><li>a different ending (.co instead of .com)</li><li>the real name at the start, but the real website is at the end ("novacorp.com.hr-portal.net" belongs to hr-portal.net)</li><li>a dash added ("hr-novacorp.com")</li></ul><p><b>The right reflex:</b> type the address yourself or use your bookmarks, and read the domain just before the first "/".</p>`;
+  timers.push(setInterval(()=>{left--;$('#t').textContent=left;if(left<=0)debrief('ko',2,'network','Too late!',expl)},1000));
+  app.querySelectorAll('.urlbar').forEach(b=>b.onclick=()=>{const ok=opts[b.dataset.i]===l.real;debrief(ok?'ok':'ko',2,'network',ok?'Real website found!':'Fake website!',expl)});
+}
+
+/* ---------- 5. Messy desk ---------- */
+const ERR=[
+ {id:'postit',x:300,y:70,r:34,name:'A password on a post-it on the screen',svg:'<rect x="282" y="52" width="40" height="38" fill="#ffe14d" transform="rotate(6 302 71)"/><text x="287" y="75" font-size="9" fill="#333" transform="rotate(6 302 71)">pass:</text><text x="287" y="85" font-size="9" fill="#333" transform="rotate(6 302 71)">Nova24</text>'},
+ {id:'usb',x:430,y:250,r:30,name:'An unknown USB key (found in the car park?)',svg:'<rect x="415" y="242" width="34" height="16" rx="3" fill="#e33"/><rect x="449" y="246" width="10" height="8" fill="#bbb"/><text x="418" y="254" font-size="7" fill="#fff">FREE</text>'},
+ {id:'screen',x:200,y:120,r:52,name:'Computer left unlocked (session open)',svg:'<text x="150" y="105" font-size="11" fill="#0b1f3a" font-weight="700">Accounting — logged in</text><rect x="150" y="115" width="110" height="7" fill="#9fb3cc"/><rect x="150" y="128" width="90" height="7" fill="#9fb3cc"/>'},
+ {id:'badge',x:90,y:258,r:28,name:'Access badge left on the desk',svg:'<rect x="70" y="244" width="40" height="28" rx="4" fill="#fff" stroke="#2f6fed" stroke-width="2"/><circle cx="82" cy="256" r="5" fill="#9fb3cc"/><rect x="90" y="252" width="15" height="3" fill="#2f6fed"/><rect x="90" y="258" width="12" height="3" fill="#2f6fed"/>'},
+ {id:'code',x:520,y:200,r:30,name:'2FA code visible on a phone, face up',svg:'<rect x="505" y="175" width="30" height="52" rx="5" fill="#111"/><rect x="508" y="182" width="24" height="38" fill="#3d7bfd"/><text x="510" y="203" font-size="8" fill="#fff">482 913</text>'},
+ {id:'doc',x:560,y:95,r:34,name:'Confidential document left on the printer',svg:'<rect x="530" y="85" width="60" height="30" rx="4" fill="#9aa5b1"/><rect x="540" y="70" width="40" height="22" fill="#fff"/><text x="542" y="83" font-size="7" fill="#e33" font-weight="700">CONFIDENTIAL</text>'}
+];
+const DECOY=[{x:350,y:250,r:22},{x:30,y:150,r:26},{x:255,y:255,r:24}];
+function gameDesk(){
+  const set=shuffle(ERR).slice(0,4),ids=set.map(e=>e.id);let found=new Set(),left=40;
+  const art=`<svg viewBox="0 0 620 320" role="img" aria-label="An office desk">
+  <rect width="620" height="320" fill="#dfe6ef"/><rect y="200" width="620" height="120" fill="#c48a5a"/><rect y="200" width="620" height="10" fill="#a8703f"/>
+  <rect x="130" y="40" width="200" height="140" rx="8" fill="#2b2f38"/><rect x="140" y="50" width="180" height="115" fill="${ids.includes('screen')?'#e8eef7':'#14325c'}"/>${ids.includes('screen')?'':'<text x="170" y="112" font-size="12" fill="#9fb3cc">🔒 Locked</text>'}
+  <rect x="215" y="180" width="30" height="22" fill="#2b2f38"/><rect x="180" y="200" width="100" height="8" fill="#2b2f38"/>
+  <rect x="200" y="235" width="120" height="30" rx="4" fill="#3a3f4b"/>
+  <circle cx="350" cy="250" r="16" fill="#fff"/><circle cx="350" cy="250" r="11" fill="#6b3b1f"/>
+  <rect x="15" y="130" width="30" height="70" fill="#4a8f4a" rx="14"/><rect x="18" y="185" width="24" height="18" fill="#a0522d"/>
+  <rect x="240" y="245" width="0" height="0"/>
+  ${set.map(e=>e.svg).join('')}
+  ${[...set.map(e=>({...e,err:1})),...DECOY].map((s,i)=>`<g class="spot" data-id="${s.id||'d'+i}" tabindex="0"><circle class="ring2" cx="${s.x}" cy="${s.y}" r="${s.r}" fill="transparent" stroke="transparent"/></g>`).join('')}
+  </svg>`;
+  app.innerHTML=`<p class="sub" style="margin-bottom:8px">NovaCorp · Open space, 6:30 pm</p><div class="card"><h2>A colleague left. Find the 4 security mistakes on the desk.</h2><div class="row" style="align-items:center"><div class="timer" id="t">40</div><div style="text-align:center;font-weight:800"><span id="f">0</span>/4 found</div></div></div>
+  <div class="fig">${art}</div><p class="hint">Tap the mistakes. Tapping a normal object costs nothing, but time is running!</p><button class="btn" id="done">I'm done</button>`;
+  const end=()=>{const n=found.size,r=n===4?'ok':n>=2?'mid':'ko';
+    debrief(r,2,'devices',`You found ${n}/4 mistakes.`,`<ul class="cl">${set.map(e=>`<li>${found.has(e.id)?'✅':'❌'} ${esc(e.name)}</li>`).join('')}</ul>
+    <p><b>The right reflexes:</b> lock your screen (Windows + L) every time you leave, never write passwords down, never plug in an unknown USB key, keep your badge and your phone with you, collect your printouts.</p>`)};
+  app.querySelectorAll('.spot').forEach(g=>g.onclick=()=>{const id=g.dataset.id;if(ids.includes(id)){if(!found.has(id)){found.add(id);g.classList.add('hit');$('#f').textContent=found.size;if(found.size===4)setTimeout(end,500)}}else toast('Nothing wrong here.')});
+  timers.push(setInterval(()=>{left--;$('#t').textContent=left;if(left<=0)end()},1000));
+  $('#done').onclick=end;
+}
+
+/* ---------- 6. Ransomware ---------- */
+const STEPS=['Unplug the computer from the network','Alert the IT team','Don\'t pay the ransom','Restore the files from the backup'];
+function gameRansom(){
+  const amount=pick(['2 bitcoins','50,000 €','3 bitcoins']);
+  app.innerHTML=`<div class="ransom"><h2>YOUR FILES ARE LOCKED</h2><p>All NovaCorp files have been encrypted.<br>Pay <b>${amount}</b> to get them back.</p><div class="timer" id="cd">47:59:59</div><p style="font-size:13px;opacity:.8">After this time, your files will be deleted forever.</p></div>
+  <div class="card" style="margin-top:14px"><h2>Ransomware! What do you do?</h2><p class="sub">Tap the 4 actions in the right order.</p><div id="st"></div>
+  <div class="row"><button class="btn ghost" id="undo">Start again</button><button class="btn" id="ok" disabled style="opacity:.5">Validate</button></div></div>`;
+  let s=47*3600+59*60+59;timers.push(setInterval(()=>{s--;const h=Math.floor(s/3600),m=Math.floor(s%3600/60),x=s%60;$('#cd').textContent=[h,m,x].map(v=>String(v).padStart(2,'0')).join(':')},1000));
+  const opts=shuffle(STEPS);let order=[];
+  const draw=()=>{$('#st').innerHTML=opts.map(o=>{const k=order.indexOf(o);return `<button class="step ${k>=0?'on':''}" data-o="${esc(o)}"><span class="n">${k>=0?k+1:''}</span>${esc(o)}</button>`}).join('');
+    app.querySelectorAll('.step').forEach(b=>b.onclick=()=>{const o=b.dataset.o;if(!order.includes(o)){order.push(o);draw()}});
+    const ok=$('#ok');ok.disabled=order.length<4;ok.style.opacity=order.length<4?.5:1};
+  draw();$('#undo').onclick=()=>{order=[];draw()};
+  $('#ok').onclick=()=>{const good=order.filter((o,i)=>o===STEPS[i]).length,r=good===4?'ok':good>=2?'mid':'ko';
+    debrief(r,3,'devices',`${good}/4 actions in the right place.`,`<p><b>The right order:</b></p><ol class="cl">${STEPS.map((x,i)=>`<li>${esc(x)}${order[i]===x?' ✅':''}</li>`).join('')}</ol>
+    <p>1. Unplug first, so the virus can't spread to other computers. 2. Alert IT immediately: never hide it. 3. Don't pay: there is no guarantee you get your files back, and it funds the hackers. 4. Restore from the backup: that's why regular backups are vital.</p>`)};
+}
+
+/* ---------- router ---------- */
+const GAMES={
+ trap:{n:'Spot the trap',d:'Email or text: scam or real?',run:()=>intro('✉','Incoming message!','A new message just arrived at NovaCorp. Scam or real?',gameTrap)},
+ password:{n:'Crack my password',d:'Make it resist 100 years',run:()=>intro('🔑','Password expired!','An account needs a new password. Make it strong.',gamePassword)},
+ call:{n:'Incoming call',d:'Someone calls the office',run:()=>intro('☎','Your phone is ringing!','Turn the sound on and answer the call.',gameCall)},
+ link:{n:'Find the real link',d:'15 seconds, 4 addresses',run:()=>intro('🌐','Which website?','Find the real website before the time runs out.',gameLink)},
+ desk:{n:'Messy desk',d:'Find the 4 mistakes',run:()=>intro('🖥','End of the day','A colleague just left. Inspect the desk.',gameDesk)},
+ ransom:{n:'Ransomware!',d:'Put the actions in order',run:()=>intro('⚠','ALERT','Something terrible is happening on a computer.',gameRansom)}
+};
+function menu(){
+  app.innerHTML=`<h1>Hacker Alert</h1><p class="sub">Mini-games of the QR cards. On a real card, the QR code opens one game directly.</p>
+  <div class="menu">${Object.entries(GAMES).map(([k,g])=>`<a href="#${k}"><span>${g.n}<br><small>${g.d}</small></span><span>›</span></a>`).join('')}</div>
+  <div class="card"><h2>Intrusion gauge: ${state.gauge}/10</h2><p class="sub">The gauge is saved on this phone during a game.</p><button class="btn ghost" id="reset">New game: reset the gauge</button></div>
+  <p class="note">Training game for the English Game 2026. NovaCorp, Bluestone Bank and ParcelGo are fictional.</p>`;
+  $('#reset').onclick=()=>{state={gauge:0,missed:{}};save(state);drawGauge();menu();toast('Gauge reset to 0')};
+}
+function route(){clearT();const q=new URLSearchParams(location.search).get('c');const k=(location.hash.slice(1)||q||'').toLowerCase();
+  (GAMES[k]?GAMES[k].run:menu)();scrollTo(0,0)}
+addEventListener('hashchange',route);drawGauge();route();
+}
+</script>
+</body>
+</html>
